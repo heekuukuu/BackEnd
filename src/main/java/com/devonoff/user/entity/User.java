@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,6 +27,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "user")
 public class User implements UserDetails {
 
