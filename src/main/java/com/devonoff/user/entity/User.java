@@ -45,20 +45,24 @@ public class User implements UserDetails {
   @Column(nullable = false)
   private String password;
 
+  @Builder.Default
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)
   private LoginType loginType = LoginType.GENERAL; // 로그인 타입 (GENERAL, GOOGLE, NAVER 등)
 
-
+  @Builder.Default
   @Column(nullable = true, name = "profile_image_url")
-  private String profileImage; // 기본 역할
+  private String profileImage = null;
 
+  @Builder.Default
   @Column(name = "is_active", nullable = false)
   private Boolean isActive = true;
 
+  @Builder.Default
   @Column(nullable = false)
   private LocalDateTime createdAt = LocalDateTime.now(); // 가입일
 
+  @Builder.Default
   @Column(name = "update_at", nullable = false)
   private LocalDateTime updatedAt = LocalDateTime.now(); // 수정 날짜
 
