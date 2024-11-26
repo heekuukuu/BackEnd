@@ -1,8 +1,10 @@
 package com.devonoff.user.controller;
 
+import com.devonoff.exception.CustomException;
 import com.devonoff.token.dto.TokenResponse;
 import com.devonoff.token.repository.TokenRepository;
 import com.devonoff.token.util.JwtTokenProvider;
+import com.devonoff.type.ErrorCode;
 import com.devonoff.user.dto.LoginRequest;
 import com.devonoff.user.dto.SignUpRequest;
 import com.devonoff.user.entity.User;
@@ -11,7 +13,6 @@ import com.devonoff.user.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,8 +56,7 @@ public class AuthController {
     // 응답 메시지 생성
     Map<String, String> response = new HashMap<>();
     if (exists) {
-      response.put("message", "이미 사용 중인 이메일입니다.");
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(response); // 409 Conflict 반환
+      throw new CustomException(ErrorCode.EMAIL_ALREADY_REGISTERED); // 400 반환
     } else {
       response.put("message", "사용가능한 이메일입니다.");
       return ResponseEntity.ok(response); // 200 OK 반환
@@ -67,11 +67,10 @@ public class AuthController {
   public ResponseEntity<TokenResponse> emailLogin(@RequestBody LoginRequest request) {
     // 이메일로 사용자 검색
     User user = userRepository.findByEmail(request.getEmail())
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
-
+        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS, "존재하지 않는 이메일입니다."));
     // 비밀번호 검증
     if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-      throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+      throw new CustomException(ErrorCode.INVALID_CREDENTIALS, "비밀번호가 일치하지 않습니다.");
     }
 
     // Access Token 및 Refresh Token 생성
