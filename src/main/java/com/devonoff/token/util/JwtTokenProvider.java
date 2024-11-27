@@ -77,4 +77,39 @@ public class JwtTokenProvider {
         .signWith(key) // Key 객체를 사용한 서명
         .compact(); // 최종적으로 JWT 문자열 생성
   }
+
+  /**
+   * 토큰에서 사용자 이름 추출
+   *
+   * @param token - JWT 토큰
+   * @return 사용자 이름(주체)
+   */
+  public String getUsernameFromToken(String token) {
+    return getClaimsFromToken(token).getSubject();
+  }
+
+  /**
+   * 토큰의 만료 여부 확인
+   *
+   * @param token - JWT 토큰
+   * @return 토큰이 만료되었는지 여부 (true: 만료됨)
+   */
+  public boolean isTokenExpired(String token) {
+    Date expiration = getClaimsFromToken(token).getExpiration();
+    return expiration.before(new Date());
+  }
+
+  /**
+   * 토큰에서 Claims 추출
+   *
+   * @param token - JWT 토큰
+   * @return Claims (JWT payload)
+   */
+  private Claims getClaimsFromToken(String token) {
+    return Jwts.parserBuilder()
+        .setSigningKey(key) // 서명 검증에 사용되는 Key 설정
+        .build()
+        .parseClaimsJws(token) // JWT 토큰을 파싱
+        .getBody(); // Payload 반환
+  }
 }

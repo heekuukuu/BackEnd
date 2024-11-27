@@ -1,8 +1,8 @@
 package com.devonoff.user.controller;
 
 import com.devonoff.exception.CustomException;
-import com.devonoff.token.dto.TokenResponse;
 import com.devonoff.token.repository.TokenRepository;
+import com.devonoff.token.service.TokenService;
 import com.devonoff.token.util.JwtTokenProvider;
 import com.devonoff.type.ErrorCode;
 import com.devonoff.user.dto.LoginRequest;
@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,6 +31,7 @@ public class AuthController {
   private final JwtTokenProvider jwtTokenProvider;
   private final TokenRepository tokenRepository;
   private final PasswordEncoder passwordEncoder;
+  private final TokenService tokenService;
 
 
   /**
@@ -47,7 +49,7 @@ public class AuthController {
 
   @PostMapping("/verify-email")
   public ResponseEntity<Map<String, String>> verifyEmail(@RequestBody Map<String, String> request) {
-    // 요청에서 email 키를 가져옵니다.
+    // 요청에서 email 키를 가져옴
     String email = request.get("email");
 
     // 이메일이 데이터베이스에 존재하는지 확인
@@ -64,7 +66,7 @@ public class AuthController {
   }
 
   @PostMapping("/sign-in/email")
-  public ResponseEntity<TokenResponse> emailLogin(@RequestBody LoginRequest request) {
+  public ResponseEntity<Map<String, String>> emailLogin(@RequestBody LoginRequest request) {
     // 이메일로 사용자 검색
     User user = userRepository.findByEmail(request.getEmail())
         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_CREDENTIALS, "존재하지 않는 이메일입니다."));
@@ -80,7 +82,43 @@ public class AuthController {
     // Refresh Token을 Redis에 저장 (유효기간: 7일)
     tokenRepository.saveRefreshToken(user.getUsername(), refreshToken, 7 * 24 * 60 * 60);
 
-    // TokenResponse 객체로 반환
-    return ResponseEntity.ok(new TokenResponse(accessToken, refreshToken));
+    // Access Token만 반환하도록 Map 생성
+    Map<String, String> response = new HashMap<>();
+    response.put("accessToken", accessToken);
+
+    return ResponseEntity.ok(response);
   }
-}
+
+
+  /**
+   * Access Token을 사용한 새로운 Access Token 갱신
+   */
+  @PostMapping("/reissue")
+  public ResponseEntity<Map<String, String>> reissueToken(
+      @RequestHeader("Authorization") String bearerToken) {
+    // Bearer 토큰에서 Access Token 추출
+    if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
+      throw new CustomException(ErrorCode.TOKEN_NOT_PROVIDED, "Access Token이 제공되지 않았습니다.");
+    }
+
+    String accessToken = bearerToken.substring(7); // "Bearer " 이후의 토큰 값 추출
+
+    // Access Token의 유효성 검증
+    if (jwtTokenProvider.isTokenExpired(accessToken)) {
+      throw new CustomException(ErrorCode.EXPIRED_TOKEN, "Access Token이 만료되었습니다.");
+    }
+
+    String username = jwtTokenProvider.getUsernameFromToken(accessToken);
+    if (username == null) {
+      throw new CustomException(ErrorCode.INVALID_TOKEN, "유효하지 않은 Access Token입니다.");
+    }
+
+    // 새로운 Access Token 생성
+    String newAccessToken = jwtTokenProvider.createAccessToken(username);
+
+    // 응답 구성
+    Map<String, String> response = new HashMap<>();
+    response.put("accessToken", newAccessToken);
+    return ResponseEntity.ok(response);
+  }
+  }
