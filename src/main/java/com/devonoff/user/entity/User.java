@@ -11,15 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 @Getter
@@ -29,11 +25,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 @AllArgsConstructor
 @Builder
 @Table(name = "user")
-public class User implements UserDetails {
+public class User {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long Id;
+  private Long id;
 
   @Column(nullable = false, unique = true)
   private String username; // 사용자 닉네임
@@ -70,30 +66,5 @@ public class User implements UserDetails {
   public void preUpdate() {
     this.updatedAt = LocalDateTime.now();
   }
-
-  // UserDetails 인터페이스 기본 구현
-  @Override
-  public Collection<? extends GrantedAuthority> getAuthorities() {
-    return Collections.emptyList(); // 현재 권한 관리 제외
-  }
-
-  @Override
-  public boolean isAccountNonExpired() {
-    return true; // 계정 만료 여부
-  }
-
-  @Override
-  public boolean isAccountNonLocked() {
-    return true; // 계정 잠김 여부
-  }
-
-  @Override
-  public boolean isCredentialsNonExpired() {
-    return true; // 자격 증명 만료 여부
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return this.isActive; // 활성 상태
-  }
 }
+
