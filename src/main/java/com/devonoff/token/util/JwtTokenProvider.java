@@ -3,9 +3,10 @@ package com.devonoff.token.util;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Date;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -111,5 +112,22 @@ public class JwtTokenProvider {
         .build()
         .parseClaimsJws(token) // JWT 토큰을 파싱
         .getBody(); // Payload 반환
+  }
+
+  /**
+   * 요청 헤더에서 토큰 추출
+   *
+   * @param request HTTP 요청
+   * @return 추출된 JWT 토큰 (없으면 null 반환)
+   */
+  public String resolveToken(HttpServletRequest request) {
+    String bearerToken = request.getHeader("Authorization");
+
+    // Authorization 헤더가 "Bearer "로 시작하면 토큰 추출
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      return bearerToken.substring(7); // "Bearer " 이후의 토큰 반환
+    }
+
+    return null; // 헤더에 토큰이 없으면 null 반환
   }
 }

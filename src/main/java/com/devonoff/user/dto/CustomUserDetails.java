@@ -25,6 +25,11 @@ public class CustomUserDetails implements UserDetails {
     return user.getPassword(); // User 엔티티의 비밀번호
   }
 
+
+  public Long getId() {
+    return user.getId();
+  }
+
   public String getEmail() {
     return user.getEmail();
   }
