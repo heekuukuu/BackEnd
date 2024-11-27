@@ -3,9 +3,10 @@ package com.devonoff.token.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.devonoff.domain.token.service.TokenService;
 import com.devonoff.exception.CustomException;
-import com.devonoff.token.repository.TokenRepository;
-import com.devonoff.token.util.JwtTokenProvider;
+import com.devonoff.domain.token.repository.TokenRepository;
+import com.devonoff.util.JwtTokenProvider;
 import com.devonoff.type.ErrorCode;
 import java.util.Set;
 import org.junit.jupiter.api.Test;

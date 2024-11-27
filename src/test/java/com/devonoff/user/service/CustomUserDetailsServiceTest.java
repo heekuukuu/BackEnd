@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.devonoff.user.dto.CustomUserDetails;
-import com.devonoff.user.entity.User;
-import com.devonoff.user.repository.UserRepository;
+import com.devonoff.domain.user.entity.User;
+import com.devonoff.domain.user.repository.UserRepository;
+import com.devonoff.domain.user.service.CustomUserDetailsService;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

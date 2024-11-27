@@ -1,4 +1,4 @@
-package com.devonoff.token.dto;
+package com.devonoff.domain.token.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

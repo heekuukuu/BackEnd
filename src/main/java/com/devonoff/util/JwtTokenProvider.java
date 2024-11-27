@@ -1,4 +1,4 @@
-package com.devonoff.token.util;
+package com.devonoff.util;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -39,39 +39,40 @@ public class JwtTokenProvider {
   /**
    * Access Token 생성
    *
-   * @param username - 사용자 이름(또는 ID)
+   * @param id -  ID
    * @return Access Token 문자열
    */
-  public String createAccessToken(String username) {
-    return createToken(username, accessTokenValidity);
+  public String createAccessToken(String id) {
+    return createToken(id, accessTokenValidity);
   }
 
   /**
    * Refresh Token 생성
    *
-   * @param username - 사용자 이름(또는 ID)
+   * @param id -  ID
    * @return Refresh Token 문자열
    */
-  public String createRefreshToken(String username) {
-    return createToken(username, refreshTokenValidity);
+  public String createRefreshToken(String id) {
+    return createToken(id, refreshTokenValidity);
   }
 
   /**
    * 공통 토큰 생성 메서드
    *
-   * @param username - 토큰의 주체가 되는 사용자 이름(또는 ID)
+   * @param id - 토큰의 주체가 되는 사용자 이름(또는 ID)
    * @param validity - 토큰의 유효기간 (밀리초)
    * @return 생성된 JWT 토큰 문자열
    */
-  private String createToken(String username, long validity) {
+  private String createToken(String id, long validity) {
     // Claims는 JWT의 payload에 해당하며, 사용자 정보 및 데이터를 담습니다.
-    Claims claims = Jwts.claims().setSubject(username);
+    Claims claims = Jwts.claims().setSubject(id);
 
     // 현재 시간
     Date now = new Date();
 
     // JWT 생성
     return Jwts.builder()
+
         .setClaims(claims) // 사용자 정보 설정
         .setIssuedAt(now) // 토큰 발행 시간
         .setExpiration(new Date(now.getTime() + validity)) // 토큰 만료 시간
@@ -80,13 +81,13 @@ public class JwtTokenProvider {
   }
 
   /**
-   * 토큰에서 사용자 이름 추출
+   * 토큰에서 사용자 아이디 추출
    *
    * @param token - JWT 토큰
-   * @return 사용자 이름(주체)
+   * @return 사용자 ID(주체)
    */
-  public String getUsernameFromToken(String token) {
-    return getClaimsFromToken(token).getSubject();
+  public Long getUserIdFromToken(String token) {
+    return Long.valueOf(getClaimsFromToken(token).getSubject());
   }
 
   /**

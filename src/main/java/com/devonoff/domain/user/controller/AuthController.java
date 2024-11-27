@@ -1,15 +1,15 @@
-package com.devonoff.user.controller;
+package com.devonoff.domain.user.controller;
 
+import com.devonoff.domain.user.repository.UserRepository;
 import com.devonoff.exception.CustomException;
-import com.devonoff.token.repository.TokenRepository;
-import com.devonoff.token.service.TokenService;
-import com.devonoff.token.util.JwtTokenProvider;
+import com.devonoff.domain.token.repository.TokenRepository;
+import com.devonoff.domain.token.service.TokenService;
+import com.devonoff.util.JwtTokenProvider;
 import com.devonoff.type.ErrorCode;
-import com.devonoff.user.dto.LoginRequest;
-import com.devonoff.user.dto.SignUpRequest;
-import com.devonoff.user.entity.User;
-import com.devonoff.user.repository.UserRepository;
-import com.devonoff.user.service.UserService;
+import com.devonoff.domain.user.dto.LoginRequest;
+import com.devonoff.domain.user.dto.SignUpRequest;
+import com.devonoff.domain.user.entity.User;
+import com.devonoff.domain.user.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -103,22 +103,22 @@ public class AuthController {
 
     String accessToken = bearerToken.substring(7); // "Bearer " 이후의 토큰 값 추출
 
-    // Access Token의 유효성 검증
-    if (jwtTokenProvider.isTokenExpired(accessToken)) {
-      throw new CustomException(ErrorCode.EXPIRED_TOKEN, "Access Token이 만료되었습니다.");
-    }
+//    // Access Token의 유효성 검증
+//    if (jwtTokenProvider.isTokenExpired(accessToken)) {
+//      throw new CustomException(ErrorCode.EXPIRED_TOKEN, "Access Token이 만료되었습니다.");
+//    }
 
-    String username = jwtTokenProvider.getUsernameFromToken(accessToken);
-    if (username == null) {
+    Long id = jwtTokenProvider.getUserIdFromToken(accessToken);
+    if (id == null) {
       throw new CustomException(ErrorCode.INVALID_TOKEN, "유효하지 않은 Access Token입니다.");
     }
 
     // 새로운 Access Token 생성
-    String newAccessToken = jwtTokenProvider.createAccessToken(username);
+    String newAccessToken = jwtTokenProvider.createAccessToken(String.valueOf(id));
 
     // 응답 구성
     Map<String, String> response = new HashMap<>();
     response.put("accessToken", newAccessToken);
     return ResponseEntity.ok(response);
   }
-  }
+}

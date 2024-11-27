@@ -1,4 +1,4 @@
-package com.devonoff.token.repository;
+package com.devonoff.domain.token.repository;
 
 import java.util.Set;
 import java.util.UUID;

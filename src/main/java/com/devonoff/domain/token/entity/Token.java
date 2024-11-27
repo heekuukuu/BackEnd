@@ -1,4 +1,4 @@
-package com.devonoff.token.entity;
+package com.devonoff.domain.token.entity;
 
 
 import java.time.Instant;

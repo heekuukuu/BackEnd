@@ -1,4 +1,4 @@
-package com.devonoff.user.dto;
+package com.devonoff.domain.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;

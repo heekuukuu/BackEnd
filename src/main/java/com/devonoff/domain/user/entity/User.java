@@ -1,6 +1,6 @@
-package com.devonoff.user.entity;
+package com.devonoff.domain.user.entity;
 
-import com.devonoff.user.type.LoginType;
+import com.devonoff.type.LoginType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,11 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
 @Getter
@@ -25,7 +29,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Table(name = "user")
-public class User {
+public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,6 +69,35 @@ public class User {
   @PreUpdate
   public void preUpdate() {
     this.updatedAt = LocalDateTime.now();
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of();
+  }
+  @Override
+  public String getUsername() {
+    return id.toString();
+  }
+
+  @Override // 계정만료
+  public boolean isAccountNonExpired() {
+    return UserDetails.super.isAccountNonExpired();
+  }
+
+  @Override // 계정잠금
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override // 자격증명
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override //활성상태
+  public boolean isEnabled() {
+    return this.isActive; // 활성 상태
   }
 }
 
