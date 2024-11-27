@@ -75,9 +75,13 @@ public class User implements UserDetails {
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of();
   }
+
+  public Long getId() {
+    return id;
+  }
   @Override
   public String getUsername() {
-    return id.toString();
+    return username;
   }
 
   @Override // 계정만료
