@@ -1,9 +1,11 @@
 package com.devonoff.exception;
 
+import static com.devonoff.type.ErrorCode.BAD_REQUEST;
 import static com.devonoff.type.ErrorCode.INTERNAL_SERVER_ERROR;
 
-import com.devonoff.common.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,16 +15,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(CustomException.class)
-  public ErrorResponse handleCustomException(CustomException e) {
+  public ResponseEntity<String> handleCustomException(CustomException e) {
     log.error("{} is occurred", e.getErrorCode());
-    return new ErrorResponse(e.getErrorCode(), e.getErrorMessage());
+    return ResponseEntity.status(e.getErrorCode().getStatus()).body(e.getErrorMessage());
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<String> handleMethodArgumentNotValidException(Exception e) {
+    log.error("MethodArgumentNotValidException Error is occurred", e);
+    return ResponseEntity.status(BAD_REQUEST.getStatus())
+        .body(BAD_REQUEST.getDescription());
   }
 
   @ExceptionHandler(Exception.class)
-  public ErrorResponse handleException(Exception e) {
+  public ResponseEntity<String> handleException(Exception e) {
     log.error("Error is occurred", e);
-    return new ErrorResponse(INTERNAL_SERVER_ERROR,
-        INTERNAL_SERVER_ERROR.getDescription());
+    return ResponseEntity.status(INTERNAL_SERVER_ERROR.getStatus())
+        .body(INTERNAL_SERVER_ERROR.getDescription());
   }
 
 }
